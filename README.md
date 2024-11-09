@@ -54,15 +54,16 @@ Cyclistic Trip Data Download https://divvy-tripdata.s3.amazonaws.com/index.html
     * Tableau
     * GitHub
  ##  Phase3- Process
- I imported the bike data to RStudios to being with the processing of the datasets to prepare
- the data for analysis. I combine the 12 datasets into one dataset and clean it. I then used 
- Tableau to creat visual from the data from RStudios 
+ I imported the bike data as a csv file to RStudios. I being processing the datasets to prepare
+ the data for analysis. I merged the 12 datasets into one dataset and clean it. By removing duplicates, 
+ missing values, outliers, inconsistencies and errors in the dataset. I then used 
+ Tableau to created visual from the data from RStudios. 
 
- ##  Phase4- 
+ ##  Phase4- Analyze
 
+##   Phase5- Share
 
-
-
+##   Phase6- Act
 
 
 
