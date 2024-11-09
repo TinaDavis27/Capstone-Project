@@ -60,8 +60,10 @@ Cyclistic Trip Data Download https://divvy-tripdata.s3.amazonaws.com/index.html
  Tableau to created visual from the data from RStudios. 
 
  ##  Phase4- Analyze
+    RStudio: Data Analysis
 
 ##   Phase5- Share
+   Tableau: Data Visualization
 
 ##   Phase6- Act
 
