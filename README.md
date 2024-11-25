@@ -59,23 +59,262 @@ Cyclistic Trip Data Download https://divvy-tripdata.s3.amazonaws.com/index.html
  missing values, outliers, inconsistencies and errors in the dataset. I then used 
  Tableau to created visual from the data from RStudios. 
 
- ##  Phase4- Analyze
-    RStudio: Data Analysis
+ ##  Phase4 & 5- Analyze & Share
+    RStudio: Data Analysis, Data Visualization
 
-##   Phase5- Share
-   Tableau: Data Visualization
 
 ##   Phase6- Act
+###  Based on insights, here are the top 3 recommendations for Cyclistis:
+  1.Creating personalized and targeted digital campaigns is one of the most effective ways to encourage 
+     casual riders to become annual members. By leveraging data on their usage patterns and engagement, Cyclistic
+     can design marketing messages that speak directly to their needs and habits.
 
+2. A referral program is a powerful way to tap into the existing Cyclistic community and motivate
+  current riders to encourage their friends and family to sign up for an annual membership.
 
+3.  Offering time sensitive discounts and exclusive member benefits can create a sense of urgency
+  and drive casual riders to take immediate action. These incentives make the membership feel like
+   a "special deal" that’s too good to pass up.
+![image](https://github.com/user-attachments/assets/a7d4c8e1-cc6e-4b48-9f1d-2b2385e8ae37)
 
+ ## RStudio Programming Codes
 
+ ### Installing and loading the necessary packages
+ install.packages("readr")
+      
+  library(readr)
 
+  install.packages("Tidyverse")
 
+  library(Tidyverse)
 
+  install.packages("ggplot2") 
 
+  library(ggplot2)
 
+  install.packages("dplyr")
+  
+  library(dplyr)
 
+  install.packages("lubridata")
+  
+  library(lubridate)
+
+  install.packages("janitor")
+  
+  library(janitor)
+
+  ### Importing the year long data of bike share
+
+j<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202201-divvy-tripdata”)
+
+f<-read_cvs(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202202-divvy-tripdata”)
+
+m<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202203-divvy-tripdata”)
+
+a<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202204-divvy-tripdata”)
+
+ma<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202205-divvy-tripdata”)
+
+ju<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202206-divvy-tripdata”)
+
+jul<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202207-divvy-tripdata”)
+
+au<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\202208-divvy-tripdata”)
+
+s<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202209-divvy-publictripdata”)
+
+o<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202210-divvy-tripdata”)
+
+n<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\ 202211-divvy-tripdata”)
+
+d<-read_csv(“C:\\Users\\tinar\\Desktop\\Bike Data\\202112-divvy-tripdata")
+
+### Importing the year long data of bikeshare
+
+Total<-rbind(j,f)
+
+Total2<-rbind(m,a,ma,ju,jul,au,s,o,n,d)
+
+### Clean up and remove duplicates
+
+Total1 <- na.omit(Total1)
+
+Total1 <- distinct(Total1)
+
+### Convert to Posixct format
+
+Total$ended_at <- as.POSIXct (Total$ended_at, format = "%m/%d/%Y %H:%M")
+Total$started_at <- as.POSIXct (Total$started_at, format = "%m/%d/%Y %H:%M")
+
+### Adding columns for date,month,day,year,day of the week and ride length
+
+Total1$date <- as.Date(Total1$started_at)
+
+Total1$month <- format(as.Date(Total1$date), "%m")
+
+Total1$day <- format(as.Date(Total1$date), "%d")
+
+Total1$year <- format(as.Date(Total1$date), "%Y")
+
+Total1$day_of_week <- format(as.Date(Total1$date), "%A")
+
+### Identify rows where started_at is not less than ended_at
+
+rows_to_replace <- Total1$started_at >= Total1$ended_at
+
+### Replace the values in started_at with the corresponding values in ended_at
+
+Total1$started_at[rows_to_replace] <- Total1$ended_at[rows_to_replace]
+
+### Calculate ride_length in minutes
+
+Total1$ride_length <- as.numeric(difftime(Total1$ended_at, Total1$started_at, units = "mins"))
+
+### Removing ride_length <= 0
+
+Total1_2 <- Total1[Total1$ride_length > 0, ]
+
+### Order the day od the week for clean visualization
+
+Total1_2$day_of_week <- ordered(Total1_2$day_of_week, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+
+sum(is.na(Total1_2$ride_length))
+
+### Basic calculations
+
+mean(Total1_2$ride_length, na.rm = TRUE)
+
+max(Total1_2$ride_length, na.rm = TRUE)
+
+### Length of ride by member type mean calculation
+
+aggregate(Total1_2$ride_length~Total1_2$member_casual, FUN = mean)
+
+### Length of ride by member type median
+
+aggregate(Total1_2$ride_length~Total1_2$member_casual, FUN = median)
+
+### Length of ride by member type max
+
+aggregate(Total1_2$ride_length~Total1_2$member_casual, FUN = max)
+
+### Mean length of ride by member type by day of week
+
+aggregate(Total1_2$ride_length~Total1_2$member_casual+ Total1_2$day_of_week, FUN = mean)
+
+### Maximum length of ride by member type by day of week
+
+aggregate(Total1_2$ride_length~Total1_2$member_casual+ Total1_2$day_of_week, FUN = max)
+
+### Total trips by customer type
+
+Total1_2 %>%
+
+  group_by(member_casual) %>%
+
+  summarize(number_of_rides = n()) %>%
+
+  arrange(member_casual) %>%
+
+  ggplot(aes(x = member_casual, y = number_of_rides, fill = member_casual))+
+
+  labs(title = "Number of trips by customer type") +
+
+  geom_col(width= 0.5, position = position_dodge(width= 0.5)) +
+
+  scale_y_continuous(labels=function(x) format(x, scientific= FALSE))+
+
+  geom_text(aes(label= number_of_rides), vjust= -0.5)
+
+  ### Average ride length
+
+Total1_2 %>%
+
+  group_by(member_casual) %>%
+
+  summarise(average_ride_length = round(mean(ride_length), 3)) %>%
+
+  ggplot(aes(x = member_casual, y = average_ride_length, fill = member_casual)) +
+
+  labs(title = "Average ride length") +
+
+  geom_col(width = 0.5, position = position_dodge(width = 0.5)) +
+
+  geom_text(aes(label = average_ride_length), vjust = -0.5)
+
+  ### Total trips by customer type Vs Day of the week
+
+  
+Total1_2 %>%
+
+  group_by(member_casual, day_of_week) %>%
+
+  summarise(number_of_rides = n()) %>%
+
+  arrange(member_casual, day_of_week) %>%
+
+  ggplot(aes(x = day_of_week, y = number_of_rides, fill = member_casual))+
+
+  labs(title = "Total trips by customer type Vs Day of the week")+
+
+  theme(axis.text.x = element_text(angle = 25))+
+
+  geom_col(width = 0.5, position = position_dodge(width = 0.5))+
+
+  scale_y_continuous(labels= function(x) format(x, scientific = FALSE))
+
+  ### Average trips by customer type by day of the week
+
+  Total1_2 %>%
+
+  group_by(member_casual, day_of_week) %>%
+
+  summarise(average_ride_length = mean(ride_length)) %>%
+
+  ggplot(aes(x = day_of_week, y = average_ride_length, fill = member_casual))+
+
+  labs(title = "Average ride length by customer type Vs Day of the week")+
+
+  theme(axis.text.x = element_text(angle = 25))+
+
+  geom_col(width = 0.5, position = position_dodge(width = 0.5))
+
+  ### Average ride length by customer type Vs Day of the week 
+
+Total1_2 %>%
+
+  group_by(member_casual, day_of_week) %>%
+
+  summarise(average_ride_length = mean(ride_length)) %>%
+
+  ggplot(aes(x = day_of_week, y = average_ride_length, fill = member_casual))+
+
+  labs(title = "Average ride length by customer type Vs Day of the week")+
+
+  theme(axis.text.x = element_text(angle = 25))+
+
+  geom_col(width = 0.5, position = position_dodge(width = 0.5))
+
+  ### Total ride lengths by customer type per month
+
+  Total1_2 %>%
+
+  group_by(member_casual, month) %>%
+
+  summarize(ride_length = n()) %>%
+
+  arrange(member_casual, month) %>%
+
+  ggplot(aes(x= month, y = ride_length, fill = member_casual))+
+
+  labs(title = "Total ride lengths by customer type per month")+
+
+  theme(axis.text.x = element_text(angle = 25))+
+
+  geom_col(width = 0.5, postion = position_dodge(width = 0.5))+
+
+  scale_y_continuous(labels = function(x) format(x, scientific = FALSE))
 
 
 
